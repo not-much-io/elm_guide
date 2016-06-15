@@ -1,10 +1,16 @@
 import Html exposing (..)
 import Html.App as Html
-import Html.Events exposing (onClick)
+import Html.Events exposing (..)
+import Random
 
 
 main = 
-    Html.program { model = model, view = view, update = update }
+    Html.program 
+      { init = init
+      , view = view
+      , update = update
+      , subscriptions = subscriptions
+      }
 
 
 -- MODEL
@@ -13,20 +19,31 @@ type alias Model =
     }
 
 
-model : Model
-model = 
-    { dieFace = 0 }
+init : (Model, Cmd Msg)
+init =
+    (Model 1, Cmd.none)
 
 
 -- UPDATE
-type Msg = Roll
+type Msg 
+  = Roll
+  | NewFace Int
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Roll ->
-            (model, Cmd.none)
+          (model, Random.generate NewFace (Random.int 1 6))
+
+        NewFace newFace ->
+          (Model newFace, Cmd.none)
+
+
+-- SUBSCRIPTIONS
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Sub.none
 
 
 -- VIEW
@@ -36,12 +53,3 @@ view model =
       [ h1 [] [ text (Basics.toString model.dieFace)]
       , button [ onClick Roll ] [ text "Roll" ] 
       ]
-
-
--- SUBSCRIPTIONS
-
-
--- INIT
-init : (Model, Cmd Msg)
-init =
-    (Model 1, Cmd.none)
